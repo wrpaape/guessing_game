@@ -1,5 +1,5 @@
 class Game
-  NUM_GUESSES = 10
+  NUM_GUESSES = 5
   RANGE = 1..100
   DEFAULT_PROMPT = "Your guess? > "
 
@@ -19,14 +19,25 @@ class Game
     end
   end
 
+   def is_game_over?
+    @guess_count >= NUM_GUESSES - 1 ? true : false
+  end
+
   def prompt_user
+    puts ""
     puts center_message("I'm thinking of a number between 1 and 100", " ")
     puts center_message("Number of guesses left: #{NUM_GUESSES - @guess_count}"," ")
     @guess_count > 0 ? (puts center_message("Last guess: #{@last_guess}"," ")) : (puts " ")
     @guess_count > 0 ? (puts center_message("Hint: #{@hint}"," ")) : (puts " ")
+
     puts " "
     print @next_prompt
     guess = gets.chomp.to_i
+    set_prompt(guess)
+    guess
+  end
+
+  def set_prompt(guess)
     if RANGE.member?(guess)
       if guess == @last_guess
         @next_prompt = "What a waste.  Next guess? > "
@@ -36,57 +47,61 @@ class Game
     else
       @next_prompt = "Your positive non-zero integer guess that is less than 101? > "
     end
-    guess
   end
 
   def is_guess_right?(guess)
-    is_guess_right = false
-    if RANGE.member?(guess) && guess != @last_guess
-      case
-      when guess > @correct_num
-        if guess > @last_guess
-          case @hint
-          when "too high"
-            @hint = "I said TOO HIGH"
-          when "I said TOO HIGH"
-            @hint = "I give up, enjoy"
-          when "I give up, enjoy"
-            @hint
-          else
-            @hint = "too high"
-          end
-        else
-          @hint = "too high"
-        end
-      when guess < @correct_num
-        if guess < @last_guess
-          case @hint
-          when "too low"
-            @hint = "I said TOO LOW"
-          when "I said TOO LOW"
-            @hint = "I give up, enjoy"
-          when "I give up, enjoy"
-            @hint
-          else
-            @hint = "too low"
-          end
-        else
-          @hint = "too low"
-        end
-      else
-        is_guess_right = true
-      end
+    if guess == @correct_num
+      true
     else
-      @hint = "hope you remembered"
+      set_hint(guess)
+      @last_guess = guess
+      false
     end
-    @last_guess = guess
-    is_guess_right
   end
 
-  def is_game_over?
-    @guess_count >= NUM_GUESSES - 1 ? true : false
+  def set_hint(guess)
+    case
+    when guess == @last_guess
+      @hint = "hope you remembered"
+    when !RANGE.member?(guess)
+      @hint = "how embarassing"
+    when guess > @correct_num
+      hint_too_high(guess)
+    else
+      hint_too_low(guess)
+    end
   end
 
+  def hint_too_high(guess)
+    if guess > @last_guess
+      apply_sarcasm_if_needed("high")
+    else
+      @hint = "too high"
+      @hint = "still " + @hint if @guess_count > 0
+    end
+  end
+
+  def hint_too_low(guess)
+    if guess < @last_guess
+      apply_sarcasm_if_needed("low")
+    else
+      @hint = "too low"
+      @hint = "still " + @hint if @guess_count > 0
+    end
+  end
+
+  def apply_sarcasm_if_needed(arg)
+    case @hint
+    when "too #{arg}"
+      @hint = "I said TOO #{arg.upcase}"
+    when "I said TOO #{arg.upcase}"
+      @hint = "I give up, enjoy"
+    when "I give up, enjoy"
+      @hint
+    else
+      @hint = "too #{arg}"
+    end
+  end
 
   def center_message(message,pad_char)
     width = `tput cols`.chomp.to_i
