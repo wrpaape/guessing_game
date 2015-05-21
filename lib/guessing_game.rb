@@ -94,6 +94,8 @@ class Game
     case @hint
     when "too #{arg}"
       @hint = "I said TOO #{arg.upcase}"
+    when "still too #{arg}"
+      @hint = "I said TOO #{arg.upcase}"
     when "I said TOO #{arg.upcase}"
       @hint = "I give up, enjoy"
     when "I give up, enjoy"
