@@ -103,16 +103,6 @@ class Game
     end
   end
 
-  def center_message(message,pad_char)
-    width = `tput cols`.chomp.to_i
-    padding = width / 2 -  (message.length / 2)
-    if message.length.even?
-      pad_char * padding + message + pad_char * padding
-    else
-      pad_char * padding + message + pad_char * (padding - 1)
-    end
-  end
-
   def display_header
     system("clear")
     3.times { puts center_message("", "#") }
@@ -140,6 +130,16 @@ class Game
     message.each { |letter| puts center_message(message * "", letter) }
     puts center_message("","*")
     exit
+  end
+
+  def center_message(message,pad_char)
+    width = `tput cols`.chomp.to_i
+    padding = width / 2 -  (message.length / 2)
+    if message.length.even?
+      pad_char * padding + message + pad_char * padding
+    else
+      pad_char * padding + message + pad_char * (padding - 1)
+    end
   end
 
 end
